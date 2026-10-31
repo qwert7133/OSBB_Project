@@ -1,4 +1,5 @@
 import random
+
 import psycopg
 
 DSN = "postgresql://osbb_admin:osbb_password@localhost:5432/osbb_db"

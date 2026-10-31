@@ -1,10 +1,11 @@
 import re
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, field_validator
+
 import psycopg
+from fastapi import FastAPI, HTTPException
 from psycopg.rows import dict_row
+from pydantic import BaseModel, field_validator
 
 app = FastAPI(title="Система керування ОСББ - Інтерфейс API", version="0.1.0")
 
@@ -26,9 +27,7 @@ class ApartmentCreate(BaseModel):
     @classmethod
     def validate_number(cls, v: str) -> str:
         if not re.match(APT_NUMBER_REGEX, v):
-            raise ValueError(
-                "Номер квартири має містити 1-4 цифри та опціонально одну літеру"
-            )
+            raise ValueError("Номер квартири має містити 1-4 цифри та опціонально одну літеру")
         return v
 
     @field_validator("entrance")
@@ -47,7 +46,6 @@ class ApartmentCreate(BaseModel):
 
 
 class ApartmentRepository(ABC):
-
     @abstractmethod
     def get_all(self) -> List[Dict[str, Any]]:
         pass
@@ -61,9 +59,7 @@ class ApartmentRepository(ABC):
         pass
 
     @abstractmethod
-    def update(
-        self, apt_id: int, apt: ApartmentCreate
-    ) -> Optional[Dict[str, Any]]:
+    def update(self, apt_id: int, apt: ApartmentCreate) -> Optional[Dict[str, Any]]:
         pass
 
     @abstractmethod
@@ -72,7 +68,6 @@ class ApartmentRepository(ABC):
 
 
 class PostgresApartmentRepository(ApartmentRepository):
-
     def get_all(self) -> List[Dict[str, Any]]:
         with psycopg.connect(DSN, row_factory=dict_row) as conn:
             return conn.execute("""
@@ -121,19 +116,11 @@ class PostgresApartmentRepository(ApartmentRepository):
                     apt.has_debt,
                 ),
             ).fetchone()
-            return (
-                new_apt
-                if new_apt is None or isinstance(new_apt, dict)
-                else dict(new_apt)
-            )
+            return new_apt if new_apt is None or isinstance(new_apt, dict) else dict(new_apt)
 
-    def update(
-        self, apt_id: int, apt: ApartmentCreate
-    ) -> Optional[Dict[str, Any]]:
+    def update(self, apt_id: int, apt: ApartmentCreate) -> Optional[Dict[str, Any]]:
         with psycopg.connect(DSN, row_factory=dict_row) as conn:
-            existing = conn.execute(
-                "SELECT owner_id FROM apartments WHERE id = %s", (apt_id,)
-            ).fetchone()
+            existing = conn.execute("SELECT owner_id FROM apartments WHERE id = %s", (apt_id,)).fetchone()
             if not existing:
                 return None
             owner_id = existing["owner_id"]
@@ -158,22 +145,12 @@ class PostgresApartmentRepository(ApartmentRepository):
                     apt_id,
                 ),
             ).fetchone()
-            return (
-                updated
-                if updated is None or isinstance(updated, dict)
-                else dict(updated)
-            )
+            return updated if updated is None or isinstance(updated, dict) else dict(updated)
 
     def delete(self, apt_id: int) -> Optional[Dict[str, Any]]:
         with psycopg.connect(DSN, row_factory=dict_row) as conn:
-            deleted = conn.execute(
-                "DELETE FROM apartments WHERE id = %s RETURNING id", (apt_id,)
-            ).fetchone()
-            return (
-                deleted
-                if deleted is None or isinstance(deleted, dict)
-                else dict(deleted)
-            )
+            deleted = conn.execute("DELETE FROM apartments WHERE id = %s RETURNING id", (apt_id,)).fetchone()
+            return deleted if deleted is None or isinstance(deleted, dict) else dict(deleted)
 
 
 repo = PostgresApartmentRepository()
@@ -205,9 +182,7 @@ def create_apartment(apt: ApartmentCreate) -> Dict[str, Any]:
 def update_apartment(apt_id: int, apt: ApartmentCreate) -> Dict[str, Any]:
     updated_apt = repo.update(apt_id, apt)
     if not updated_apt:
-        raise HTTPException(
-            status_code=404, detail="Квартиру не знайдено для оновлення"
-        )
+        raise HTTPException(status_code=404, detail="Квартиру не знайдено для оновлення")
     return {"message": "Дані квартири успішно оновлено", "data": updated_apt}
 
 
@@ -216,6 +191,4 @@ def delete_apartment(apt_id: int) -> Dict[str, Any]:
     deleted = repo.delete(apt_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Квартиру не знайдено")
-    return {
-        "message": f"Квартиру з ID {apt_id} успішно видалено з бази даних"
-    }
+    return {"message": f"Квартиру з ID {apt_id} успішно видалено з бази даних"}

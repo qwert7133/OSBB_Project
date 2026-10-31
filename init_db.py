@@ -1,12 +1,11 @@
 import random
-
 import psycopg
 
 DSN = "postgresql://osbb_admin:osbb_password@localhost:5432/osbb_db"
 
 
 def init_db():
-    print("Підключення до бази ОСББ...")
+    print("Підключення до бази ОСББ")
     with psycopg.connect(DSN) as conn:
         with conn.cursor() as cur:
             # 1. Створення таблиць

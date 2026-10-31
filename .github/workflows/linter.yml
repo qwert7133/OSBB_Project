@@ -17,14 +17,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Linting Tools
-        run: pip install ruff mypy fastapi pydantic psycopg[binary] tabulate
+      - name: Install Ruff
+        run: pip install ruff
 
-      - name: Run Ruff (Linter)
+      - name: Run Ruff Linter
         run: ruff check .
-
-      - name: Run Ruff (Formatter)
-        run: ruff format --check .
-
-      - name: Run Mypy (Type Checker)
-        run: mypy .

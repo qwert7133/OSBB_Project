@@ -1,0 +1,30 @@
+name: Code Quality (Ruff & Mypy)
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  quality:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Linting Tools
+        run: pip install ruff mypy fastapi pydantic psycopg[binary] tabulate
+
+      - name: Run Ruff (Linter)
+        run: ruff check .
+
+      - name: Run Ruff (Formatter)
+        run: ruff format --check .
+
+      - name: Run Mypy (Type Checker)
+        run: mypy .

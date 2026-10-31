@@ -1,0 +1,11 @@
+services:
+  db:
+    image: postgres:16
+    container_name: osbb_postgres_db
+    environment:
+      POSTGRES_USER: osbb_admin
+      POSTGRES_PASSWORD: osbb_password
+      POSTGRES_DB: osbb_db
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-c", "timezone=UTC", "-c", "log_timezone=UTC"]

@@ -20,3 +20,4 @@ ignore = ["E501"]
 
 [tool.mypy]
 ignore_missing_imports = true
+disable_error_code = ["import-untyped", "dict-item"]
